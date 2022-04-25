@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import saechimdaeki.auth.dto.JoinMemberDto;
+import saechimdaeki.auth.dto.MemberDto;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,19 +38,16 @@ public class Member {
 
     private String role; //
 
-    public void createRandomEmailToken(){
-        this.emailCheckToken = UUID.randomUUID().toString().substring(0,8);
-    }
-
     public void changeEmailVerified(){
         this.emailVerified=true;
     }
 
     @Builder
-    public Member(String userName, String email, String password) {
+    public Member(String userName, String email, String password,String emalCheckToken) {
         this.userName = userName;
         this.email = email;
         this.password = password;
+        this.emailCheckToken=emalCheckToken;
     }
 
     public static Member joinMember(JoinMemberDto memberDto){
@@ -57,6 +55,15 @@ public class Member {
                      .email(memberDto.getEmail())
                      .password(memberDto.getPassword())
                      .userName(memberDto.getUserName())
+                     .emalCheckToken(UUID.randomUUID().toString().substring(0,8))
                      .build();
+    }
+
+    public static MemberDto toDto(Member member){
+        return MemberDto.builder()
+                        .email(member.email)
+                        .userName(member.userName)
+                        .emailCheckToken(member.emailCheckToken)
+                        .build();
     }
 }

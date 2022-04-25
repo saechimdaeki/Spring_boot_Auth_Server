@@ -1,6 +1,8 @@
 spring:
   profiles:
     active: local
+    include:
+      - secret #application-secret.yml에 내 smtp정보 전부 저장 (gitignore처리)
   redis:
     host: localhost
     port: 6379
