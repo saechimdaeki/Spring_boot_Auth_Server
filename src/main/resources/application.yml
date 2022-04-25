@@ -12,6 +12,13 @@ spring:
     url: jdbc:h2:tcp://localhost/~/authlocal
     username: sa
     password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
 
 ---
 
@@ -21,3 +28,11 @@ spring:
     url: jdbc:mysql://localhost:3306/auth
     username: root
     password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
