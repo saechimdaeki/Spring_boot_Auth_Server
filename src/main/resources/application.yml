@@ -1,0 +1,23 @@
+spring:
+  profiles:
+    active: local
+  redis:
+    host: localhost
+    port: 6379
+---
+
+spring:
+  profiles: local
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/authlocal
+    username: sa
+    password:
+
+---
+
+spring:
+  profiles: mysql
+  datasource:
+    url: jdbc:mysql://localhost:3306/auth
+    username: root
+    password: 1234
