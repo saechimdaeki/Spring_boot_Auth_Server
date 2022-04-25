@@ -4,7 +4,7 @@
 ## Configuration for run (mac m1)
 ```markdown
 
-## profilㄷs mysql 기준
+## profiles mysql 기준
 1. docker run --platform linux/amd64 -p 3306:3306 --name mysql -e MYSQL_ROOT_PASSWORD=1234 -e -d mysql
 2. docker start mysql
 3. docker exec -it mysql bash
