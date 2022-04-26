@@ -18,7 +18,7 @@ import saechimdaeki.auth.smtp.EmailService;
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
-public class MemberService implements UserDetailsService {
+public class MemberService implements UserDetailsService  {
 
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;

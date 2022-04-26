@@ -1,8 +1,11 @@
 package saechimdaeki.auth.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@AllArgsConstructor @NoArgsConstructor
 public class JoinMemberDto {
     private String userName;
 
@@ -13,4 +16,6 @@ public class JoinMemberDto {
     public void encodePassword(String newPassword){
         this.password=newPassword;
     }
+
+
 }
