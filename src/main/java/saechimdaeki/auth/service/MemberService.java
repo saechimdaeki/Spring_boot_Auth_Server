@@ -11,6 +11,7 @@ import saechimdaeki.auth.domain.Member;
 import saechimdaeki.auth.domain.MemberAccount;
 import saechimdaeki.auth.dto.EmailMessage;
 import saechimdaeki.auth.dto.JoinMemberDto;
+import saechimdaeki.auth.dto.LoginResponseDto;
 import saechimdaeki.auth.dto.MemberDto;
 import saechimdaeki.auth.repository.MemberRepository;
 import saechimdaeki.auth.smtp.EmailService;
@@ -53,5 +54,14 @@ public class MemberService implements UserDetailsService  {
             throw new RuntimeException("올바르지 않은 토큰입니다");
 
         member.changeEmailVerified();
+    }
+
+    public LoginResponseDto getLoginResponseInfo(String username){
+        Member findByUsernameMember = memberRepository.findByUserName(username)
+                                                      .orElseThrow(() -> new RuntimeException("해당 username을 가진 유저는 존재하지 않습니다"));
+        return LoginResponseDto.builder()
+                               .email(findByUsernameMember.getEmail())
+                               .role(findByUsernameMember.getRole())
+                               .userName(findByUsernameMember.getUserName()).build();
     }
 }

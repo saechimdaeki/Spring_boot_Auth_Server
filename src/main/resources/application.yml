@@ -15,6 +15,12 @@ server:
     key-store-password: 940215
   http2:
     enabled: true
+
+token:
+  accessTokenTime: 3600000 # 1시간.
+  refreshTokenTime: 604800000 # 7일.
+  secretKey: thesecretkeyforsaechimdaekiauthserver
+
 ---
 
 spring:
