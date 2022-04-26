@@ -6,10 +6,18 @@ spring:
   redis:
     host: localhost
     port: 6379
+
+server:
+  ssl:
+    key-store: keystore.p12
+    key-store-type: PKCS12
+    key-alias: saechim
+    key-store-password: 940215
+  http2:
+    enabled: true
 ---
 
 spring:
-  profiles: local
   datasource:
     url: jdbc:h2:tcp://localhost/~/authlocal
     username: sa
@@ -21,11 +29,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  config:
+    activate:
+      on-profile: local
 
 ---
 
 spring:
-  profiles: mysql
   datasource:
     url: jdbc:mysql://localhost:3306/auth
     username: root
@@ -38,3 +48,6 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
+  config:
+    activate:
+      on-profile: mysql
