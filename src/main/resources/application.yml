@@ -19,7 +19,7 @@ server:
 token:
   accessTokenTime: 3600000 # 1시간.
   refreshTokenTime: 604800000 # 7일.
-  secretKey: thesecretkeyforsaechimdaekiauthserver
+  secretKey: thesecretkeyforsaechimdaekiauthserverkeysizeismorethan216bitstressbadayoggyoutubeborugagosipo
 
 ---
 
