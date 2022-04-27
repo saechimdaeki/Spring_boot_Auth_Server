@@ -1,6 +1,7 @@
 package saechimdaeki.auth.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -67,8 +68,16 @@ public class JwtProvider {
     }
 
     public boolean validationToken(String jsonWebToken){
-        Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(jsonWebToken);
-        return !claimsJws.getBody().getExpiration().before(new Date());
+        try {
+            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(jsonWebToken);
+            return !claimsJws.getBody().getExpiration().before(new Date());
+        }catch (ExpiredJwtException e){
+            // 다음과 같은 에러를 볼 수있음... accessToken 만료시
+            // ex) io.jsonwebtoken.ExpiredJwtException: JWT expired at 2022-04-27T14:24:59Z.
+            // Current time: 2022-04-27T14:27:32Z, a difference of 153152 milliseconds.  Allowed clock skew: 0 milliseconds.
+            log.error("access Token 만료..!!!!!! ",e);
+            return false;
+        }
     }
 
     public String extractUserName(String accessToken){
