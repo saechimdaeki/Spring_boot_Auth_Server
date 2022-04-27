@@ -23,33 +23,31 @@ public class MemberController {
     //TODO controllerAdvice 구현
 
     @GetMapping("/test")
-    public EntityModel<?> helloTest(){
+    public ResponseEntity<?> helloTest(){
         String hello = "hello World!";
-        ResponseEntity<String> helloResponse = ResponseEntity.ok(hello);
-        EntityModel<?> helloWorld = EntityModel.of(helloResponse);
+        EntityModel<?> helloWorld = EntityModel.of(new ResponseDto<>(HttpStatus.OK.value(),hello));
         helloWorld.add(linkTo(methodOn(MemberController.class).helloTest()).withSelfRel());
 
-        return helloWorld;
+        return ResponseEntity.ok(helloWorld);
     }
 
     @PostMapping("/sign-up")
-    public EntityModel<?> signUp(@RequestBody JoinMemberDto dto){
+    public ResponseEntity<?> signUp(@RequestBody JoinMemberDto dto){
         Long newMemberId = memberService.joinNewMember(dto);
-        ResponseEntity<Long> signUpResponse = ResponseEntity.status(HttpStatus.CREATED).body(newMemberId);
-        EntityModel<?> entityModel = EntityModel.of(signUpResponse);
+        EntityModel<?> entityModel = EntityModel.of(new ResponseDto<>(HttpStatus.CREATED.value(),newMemberId));
         entityModel.add(linkTo(methodOn(MemberController.class).signUp(dto)).withSelfRel());
-        return entityModel;
+        return ResponseEntity.status(HttpStatus.CREATED).body(entityModel);
     }
 
     //TODO 반환 값 정의 필요
     @GetMapping("/check-email-token")
-    public EntityModel<?> checkEmailToken(String token, String email){
+    public ResponseEntity<?> checkEmailToken(String token, String email){
         memberService.verifyToken(token,email);
 
         String result ="검증 완료";
-        ResponseEntity<String> response = ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
-        EntityModel<?> entityModel = EntityModel.of(response);
+        EntityModel<?> entityModel = EntityModel.of(new ResponseDto<>(HttpStatus.ACCEPTED.value(),result));
         entityModel.add(linkTo(methodOn(MemberController.class).checkEmailToken(token,email)).withSelfRel());
-        return entityModel;
+
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(entityModel);
     }
 }

@@ -8,16 +8,23 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Profile;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
+import saechimdaeki.auth.config.CommonConfig;
 import saechimdaeki.auth.dto.JoinMemberDto;
 import saechimdaeki.auth.service.MemberService;
 
@@ -33,8 +40,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(SpringExtension.class)
 @WebMvcTest(MemberController.class)
+@ExtendWith(SpringExtension.class)
+@Import(CommonConfig.class)
 class MemberControllerTest {
 
     @Autowired
@@ -74,10 +82,9 @@ class MemberControllerTest {
         MockHttpServletResponse response = mockMvc.perform(post("/sign-up")
                                                               .contentType(MediaType.APPLICATION_JSON)
                                                               .content(joinMemberDtoJson))
-                                                 .andExpect(status().isOk())
+                                                 .andExpect(status().isCreated())
                                                   .andExpect(content().contentType(MediaTypes.HAL_JSON))
-                                                 .andExpect(jsonPath("$.statusCodeValue", is(equalTo(201))))
-                                                 .andExpect(jsonPath("$.statusCode", is(equalTo("CREATED"))))
+                                                 .andExpect(jsonPath("$.statusCode", is(equalTo(201))))
                                                  .andExpect(jsonPath("$.body", is(equalTo(1))))
                                                  .andDo(print()).andReturn().getResponse();
 
