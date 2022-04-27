@@ -36,7 +36,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 boolean validRefreshToken = jwtProvider.validationToken(refreshToken);
                 boolean redisHasRefreshToken = jwtProvider.hasRefreshToken(refreshToken);
                 if(validRefreshToken && redisHasRefreshToken){
-                    String userName = jwtProvider.extractUserName(refreshToken);
+                    String userName = redisService.getUserName(refreshToken);
+                    log.info("userName {}",userName);
                     String newAccessJwt = jwtProvider.generateJsonToken(userName);
                     response.setHeader("accessToken",newAccessJwt);
                     SecurityContextHolder.getContext().setAuthentication(jwtProvider.getAuthByAccessToken(newAccessJwt));

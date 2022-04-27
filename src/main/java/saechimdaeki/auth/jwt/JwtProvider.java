@@ -67,6 +67,11 @@ public class JwtProvider {
         return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
     }
 
+    public Authentication getAuthByRefreshToken(String refreshToken){
+        UserDetails userDetails = memberService.loadUserByUsername(redisService.getUserName(refreshToken));
+        return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
+    }
+
     public boolean validationToken(String jsonWebToken){
         try {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(jsonWebToken);
