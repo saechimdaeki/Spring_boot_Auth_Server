@@ -6,6 +6,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import saechimdaeki.auth.dto.EmailMessage;
 
@@ -20,6 +21,7 @@ import java.io.IOException;
 public class EmailService {
     private final JavaMailSender javaMailSender;
 
+    @Async
     public void sendEmail(EmailMessage emailMessage)  {
         try {
             javaMailSender.send(createMimeMessage(emailMessage));
