@@ -13,6 +13,7 @@ import saechimdaeki.auth.dto.EmailMessage;
 import saechimdaeki.auth.dto.JoinMemberDto;
 import saechimdaeki.auth.dto.LoginResponseDto;
 import saechimdaeki.auth.dto.MemberDto;
+import saechimdaeki.auth.dto.MemberInfoDto;
 import saechimdaeki.auth.repository.MemberRepository;
 import saechimdaeki.auth.smtp.EmailService;
 
@@ -63,5 +64,14 @@ public class MemberService implements UserDetailsService  {
                                .email(findByUsernameMember.getEmail())
                                .role(findByUsernameMember.getRole())
                                .userName(findByUsernameMember.getUserName()).build();
+    }
+
+    public MemberInfoDto retriveMemberInfo(Long memberId){
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new RuntimeException("존재하지 않는 회원입니다"));
+        return MemberInfoDto.builder()
+                            .email(member.getEmail())
+                            .userName(member.getUserName())
+                            .role(member.getRole())
+                            .build();
     }
 }

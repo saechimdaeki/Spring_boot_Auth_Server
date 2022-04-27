@@ -12,7 +12,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import saechimdaeki.auth.domain.MemberAccount;
 import saechimdaeki.auth.dto.LoginDto;
 import saechimdaeki.auth.dto.LoginResponseDto;
+import saechimdaeki.auth.jwt.JwtProvider;
 import saechimdaeki.auth.service.MemberService;
+import saechimdaeki.auth.service.RedisService;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -25,12 +27,19 @@ public class AuthFilter extends UsernamePasswordAuthenticationFilter {
 
     private final MemberService memberService;
     private final ObjectMapper objectMapper;
+    private final RedisService redisService;
+    private final JwtProvider jwtProvider;
 
     public AuthFilter(AuthenticationManager authenticationManager,
-                      MemberService memberService,  ObjectMapper objectMapper) {
+                      MemberService memberService,
+                      ObjectMapper objectMapper,
+                      RedisService redisService,
+                      JwtProvider jwtProvider) {
         super(authenticationManager);
         this.memberService = memberService;
         this.objectMapper = objectMapper;
+        this.redisService = redisService;
+        this.jwtProvider = jwtProvider;
     }
 
     @Override
@@ -54,6 +63,14 @@ public class AuthFilter extends UsernamePasswordAuthenticationFilter {
         response.setContentType("application/json");
         response.setCharacterEncoding("utf-8");
         String result = objectMapper.writeValueAsString(loginResponseInfo);
+        String accessToken = jwtProvider.generateJsonToken(username);
+        String refreshToken = jwtProvider.generateRefreshToken();
+
+        response.setHeader("accessToken",accessToken);
+        response.setHeader("refreshToken",refreshToken);
+
+        redisService.setRefreshToken(username, refreshToken);
+
         response.getWriter().write(result);
     }
 }

@@ -2,16 +2,22 @@ package saechimdaeki.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import saechimdaeki.auth.filter.AuthFilter;
+import saechimdaeki.auth.filter.JwtAuthFilter;
+import saechimdaeki.auth.jwt.JwtProvider;
 import saechimdaeki.auth.service.MemberService;
+import saechimdaeki.auth.service.RedisService;
 
 @Configuration
 @EnableWebSecurity
@@ -21,7 +27,15 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final MemberService memberService;
     private final ObjectMapper objectMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RedisService redisService;
+    private final JwtProvider jwtProvider;
 
+
+    @Bean
+    @Override
+    public AuthenticationManager authenticationManagerBean() throws Exception {
+        return super.authenticationManagerBean();
+    }
 
     /**
      * TODO 조금씩 가닥 잡히면 권한 부여.
@@ -34,15 +48,19 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.headers().frameOptions().disable();
 
-        http.authorizeRequests().antMatchers("/**")
-            .permitAll()
+        http.authorizeRequests()
+            .antMatchers("/sign-up","/check-email-token","/test").permitAll()
+            .anyRequest().authenticated()
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        .and().addFilter(getAuthFilter());
+
+        .and()
+            .addFilterBefore(new JwtAuthFilter(jwtProvider,redisService), UsernamePasswordAuthenticationFilter.class)
+        .addFilter(getAuthFilter());
     }
 
     private AuthFilter getAuthFilter() throws Exception {
-        AuthFilter authFilter = new AuthFilter(authenticationManager() , memberService,objectMapper);
+        AuthFilter authFilter = new AuthFilter(authenticationManager() , memberService,objectMapper,redisService,jwtProvider);
         authFilter.setAuthenticationManager(authenticationManager());
         return authFilter;
     }

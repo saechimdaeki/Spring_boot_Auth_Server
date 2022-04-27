@@ -56,7 +56,7 @@ public class Member {
                      .email(memberDto.getEmail())
                      .password(memberDto.getPassword())
                      .userName(memberDto.getUserName())
-                     .emalCheckToken(UUID.randomUUID().toString().substring(0,8))
+                     .emalCheckToken(UUID.randomUUID().toString().substring(0,14))
                      .build();
     }
 
