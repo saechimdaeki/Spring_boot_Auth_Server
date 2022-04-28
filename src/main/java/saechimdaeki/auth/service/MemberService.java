@@ -29,6 +29,7 @@ public class MemberService implements UserDetailsService  {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = memberRepository.findByUserName(username).orElseThrow(() -> new UsernameNotFoundException(username));
+        if(!member.isEmailVerified()) throw new RuntimeException("회원 가입 인증 메일을 확인해주세요");
         return new MemberAccount(member);
     }
 

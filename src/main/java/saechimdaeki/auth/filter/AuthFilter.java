@@ -16,6 +16,7 @@ import saechimdaeki.auth.jwt.JwtProvider;
 import saechimdaeki.auth.service.MemberService;
 import saechimdaeki.auth.service.RedisService;
 
+import javax.security.auth.message.AuthException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,6 +48,8 @@ public class AuthFilter extends UsernamePasswordAuthenticationFilter {
         try {
             LoginDto loginInfo = objectMapper.readValue(request.getInputStream(), LoginDto.class);
             return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(loginInfo.getUserName(),loginInfo.getPassword()));
+
+
         } catch (IOException e) {
             throw new RuntimeException("Login Io Error"+e);
         }

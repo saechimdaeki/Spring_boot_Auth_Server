@@ -2,11 +2,10 @@ package saechimdaeki.auth.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,7 +15,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import saechimdaeki.auth.filter.AuthFilter;
 import saechimdaeki.auth.filter.JwtAuthFilter;
@@ -32,6 +30,7 @@ import java.io.IOException;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final MemberService memberService;
@@ -67,11 +66,16 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .addFilterBefore(new JwtAuthFilter(jwtProvider,redisService), UsernamePasswordAuthenticationFilter.class)
             .addFilter(getAuthFilter())
-            .exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+            .exceptionHandling().authenticationEntryPoint(new AuthenticationEntryPoint() {
+            @Override
+            public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws
+                                                                                                                                  IOException,
+                                                                                                                                  ServletException {
                 response.setStatus(HttpStatus.UNAUTHORIZED.value());
                 response.setCharacterEncoding("utf-8");
-                response.getWriter().write("\n 재 로그인 부탁드립니다 accessToken이 유효하지않고 refreshToken이 유효하지 않습니다.");
-            }).accessDeniedHandler((request, response, accessDeniedException) -> {
+                response.getWriter().write("\n 이메일 회원가입 인증을 마치지 않았거나 토큰이 유효하지 않습니다");
+            }
+        }).accessDeniedHandler((request, response, accessDeniedException) -> {
                 response.setStatus(HttpStatus.FORBIDDEN.value());
                 response.setCharacterEncoding("utf-8");
                 response.getWriter().write("\n 금지된 명령입니다. 재 로그인해서 acessToken과 refreshToken을 재발급 받아주세요");
