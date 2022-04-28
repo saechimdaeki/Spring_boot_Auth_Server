@@ -5,19 +5,29 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import saechimdaeki.auth.filter.AuthFilter;
 import saechimdaeki.auth.filter.JwtAuthFilter;
 import saechimdaeki.auth.jwt.JwtProvider;
 import saechimdaeki.auth.service.MemberService;
 import saechimdaeki.auth.service.RedisService;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity
@@ -54,9 +64,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
-        .and()
+            .and()
             .addFilterBefore(new JwtAuthFilter(jwtProvider,redisService), UsernamePasswordAuthenticationFilter.class)
-        .addFilter(getAuthFilter());
+            .addFilter(getAuthFilter())
+            .exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+                response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                response.setCharacterEncoding("utf-8");
+                response.getWriter().write("\n 재 로그인 부탁드립니다 accessToken이 유효하지않고 refreshToken이 유효하지 않습니다.");
+            }).accessDeniedHandler((request, response, accessDeniedException) -> {
+                response.setStatus(HttpStatus.FORBIDDEN.value());
+                response.setCharacterEncoding("utf-8");
+                response.getWriter().write("\n 금지된 명령입니다. 재 로그인해서 acessToken과 refreshToken을 재발급 받아주세요");
+            });
     }
 
     private AuthFilter getAuthFilter() throws Exception {
