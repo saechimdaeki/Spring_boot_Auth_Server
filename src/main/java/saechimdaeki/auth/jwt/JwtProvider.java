@@ -74,7 +74,9 @@ public class JwtProvider {
 
     public boolean validationToken(String jsonWebToken){
         try {
-            Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(jsonWebToken);
+            Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(jsonWebToken);
+
+//                Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(jsonWebToken);
             return !claimsJws.getBody().getExpiration().before(new Date());
         }catch (ExpiredJwtException e){
             // 다음과 같은 에러를 볼 수있음... accessToken 만료시
@@ -86,7 +88,8 @@ public class JwtProvider {
     }
 
     public String extractUserName(String accessToken){
-        return Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(accessToken).getBody().getSubject();
+        return Jwts.parserBuilder().setSigningKey(secretKey.getBytes()).build().parseClaimsJws(accessToken).getBody().getSubject();
+//        return Jwts.parser().setSigningKey(secretKey.getBytes()).parseClaimsJws(accessToken).getBody().getSubject();
     }
 
     public boolean hasRefreshToken(String token){

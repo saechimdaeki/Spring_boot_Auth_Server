@@ -2,6 +2,7 @@ package saechimdaeki.auth.filter;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 import saechimdaeki.auth.jwt.JwtProvider;
@@ -35,14 +36,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             }else if(!jwtProvider.validationToken(accessToken) && refreshToken!=null){
                 boolean validRefreshToken = jwtProvider.validationToken(refreshToken);
                 boolean redisHasRefreshToken = jwtProvider.hasRefreshToken(refreshToken);
+
                 if(validRefreshToken && redisHasRefreshToken){
                     String userName = redisService.getUserName(refreshToken);
                     log.info("userName {}",userName);
                     String newAccessJwt = jwtProvider.generateJsonToken(userName);
                     response.setHeader("accessToken",newAccessJwt);
                     SecurityContextHolder.getContext().setAuthentication(jwtProvider.getAuthByAccessToken(newAccessJwt));
+                }else throw new RuntimeException("accessToken이 만료되었으며 refreshToken 또한 만료인 상태입니다. 재 로그인 바랍니다.");
 
-                }
             }
         }
         filterChain.doFilter(request,response);
